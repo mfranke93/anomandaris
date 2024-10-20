@@ -1,0 +1,46 @@
+Grammar = {
+    SOI ~
+    Item* ~
+    EOI
+}
+
+restOfLine = _{
+    (LETTER | MARK | NUMBER | PUNCTUATION | SYMBOL | SPACE_SEPARATOR)*
+}
+
+WHITESPACE = _{ " " }
+
+Item = _{
+    ((Comment | Declaration) ~ (NEWLINE | EOI))
+    | EmptyLine
+    | Rule
+}
+
+Comment = { "#" ~ restOfLine }
+
+EmptyLine = @{ " "* ~ "\n" }
+
+Declaration = { VariableName ~ ":=" ~ VariableContent }
+VariableName = { (ASCII_ALPHA | "-" | "_" )+ }
+VariableContent = { restOfLine }
+
+Rule = {
+    RuleTargets ~ ":" ~ RuleDependencies
+    ~ (NEWLINE | EOI)
+    ~ RuleRecipe
+}
+RuleTargets = {
+    ".PHONY" | (
+        VariableName ~
+        (" "+ ~ VariableName)*
+    )
+}
+RuleDependencies = {
+    VariableContent?
+}
+RuleRecipe = {
+    ("\t" ~ RuleRecipeLine ~ (NEWLINE | EOI))*
+}
+RuleRecipeLine = {
+    restOfLine
+}
