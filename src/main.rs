@@ -48,7 +48,7 @@ fn main() {
                     match line.as_rule() {
                         Rule::RuleRecipeLine => {
                             let recipe_line = line.as_str();
-                            println!(" - | {recipe_line}");
+                            println!(" - | {recipe_line}")
                         },
                         _ => {},
                     }

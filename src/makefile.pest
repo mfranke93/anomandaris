@@ -8,8 +8,6 @@ restOfLine = _{
     (LETTER | MARK | NUMBER | PUNCTUATION | SYMBOL | SPACE_SEPARATOR)*
 }
 
-WHITESPACE = _{ " " }
-
 Item = _{
     ((Comment | Declaration) ~ (NEWLINE | EOI))
     | EmptyLine
@@ -20,12 +18,15 @@ Comment = { "#" ~ restOfLine }
 
 EmptyLine = @{ " "* ~ "\n" }
 
-Declaration = { VariableName ~ ":=" ~ VariableContent }
-VariableName = { (ASCII_ALPHA | "-" | "_" )+ }
+Declaration = { VariableName ~ " "* ~ ":=" ~ " "* ~ VariableContent ~ " "* }
+VariableName = {
+    (ASCII_ALPHA | "_" ) ~
+    (ASCII_ALPHANUMERIC | "_" )+
+}
 VariableContent = { restOfLine }
 
 Rule = {
-    RuleTargets ~ ":" ~ RuleDependencies
+    RuleTargets ~ ":" ~ " "* ~ RuleDependencies
     ~ (NEWLINE | EOI)
     ~ RuleRecipe
 }
@@ -42,5 +43,18 @@ RuleRecipe = {
     ("\t" ~ RuleRecipeLine ~ (NEWLINE | EOI))*
 }
 RuleRecipeLine = {
-    restOfLine
+    RuleRecipeNonStatement ~
+    ( (EvaluatedStatement | LiteralDollar) ~ RuleRecipeNonStatement)*
 }
+RuleRecipeNonStatement = {
+    (!"$" ~ ANY)*
+}
+EvaluatedStatement = {
+    "$(" ~ EvaluatedStatementContent ~ ")"
+}
+
+LiteralDollar = { "$$" }
+
+// for now, keep it simple: just a variable name.
+// later, we might allow function calls and recursive variables
+EvaluatedStatementContent = { VariableName }
