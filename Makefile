@@ -5,8 +5,9 @@ EXTRA_TARGETS := print_date print_hello
 # Test comments
 # test
 
-# set a variable
-WORLD := "world"
+# set variables
+WORLD := world
+SENTENCE := the $(WORLD) is not enough!
 
 
 # .PHONY marks these targets as "always re-build"

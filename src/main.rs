@@ -2,6 +2,8 @@ use std::fs;
 use pest::Parser;
 use pest_derive::Parser;
 
+mod evaluate;
+
 const CONFIG_FILE_NAME: &'static str = "Makefile";
 
 #[derive(Parser)]
@@ -16,7 +18,7 @@ fn main() {
     let successful_parse = MakefileParser::parse(Rule::Grammar, contents.as_str()).expect("grammar error").next().unwrap();
     println!("{:#?}\n\n---\n\n", successful_parse);
 
-    for val in successful_parse.into_inner() {
+    for val in successful_parse.clone().into_inner() {
         match val.as_rule() {
             Rule::EmptyLine => {
                 println!("EMPTY LINE");
@@ -56,5 +58,16 @@ fn main() {
             }
             _ => {},
         }
+    }
+
+    let vars = evaluate::resolve_variables(successful_parse.clone());
+    match vars {
+        Some(variables) => {
+            println!("\nVariables:\n");
+            for (k, v) in variables.iter() {
+                println!(" {} = `{}`", k, v);
+            }
+        },
+        None => {},
     }
 }

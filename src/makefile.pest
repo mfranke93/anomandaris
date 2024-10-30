@@ -9,12 +9,12 @@ restOfLine = _{
 }
 
 Item = _{
-    ((Comment | Declaration) ~ (NEWLINE | EOI))
+    (Comment | Declaration)
     | EmptyLine
     | Rule
 }
 
-Comment = { "#" ~ restOfLine }
+Comment = { "#" ~ restOfLine ~ (NEWLINE | EOI) }
 
 EmptyLine = @{ " "* ~ "\n" }
 
