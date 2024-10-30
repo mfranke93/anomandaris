@@ -18,12 +18,21 @@ Comment = { "#" ~ restOfLine }
 
 EmptyLine = @{ " "* ~ "\n" }
 
-Declaration = { VariableName ~ " "* ~ ":=" ~ " "* ~ VariableContent ~ " "* }
+Declaration = {
+    VariableName ~
+    " "* ~
+    ":=" ~
+    " "* ~
+    VariableContent ~
+    " "* ~
+    (NEWLINE | EOI)
+}
+
 VariableName = {
     (ASCII_ALPHA | "_" ) ~
     (ASCII_ALPHANUMERIC | "_" )+
 }
-VariableContent = { restOfLine }
+VariableContent = _{ EvaluatableContent }
 
 Rule = {
     RuleTargets ~ ":" ~ " "* ~ RuleDependencies
@@ -42,15 +51,19 @@ RuleDependencies = {
 RuleRecipe = {
     ("\t" ~ RuleRecipeLine ~ (NEWLINE | EOI))*
 }
-RuleRecipeLine = {
-    RuleRecipeNonStatement ~
-    ( (EvaluatedStatement | LiteralDollar) ~ RuleRecipeNonStatement)*
+EvaluatableContent = {
+    NonStatement ~
+    ( (EvaluatedStatement | LiteralDollar) ~ NonStatement)*
 }
-RuleRecipeNonStatement = {
-    (!"$" ~ ANY)*
+NonStatement = {
+    (!("$" | NEWLINE) ~ ANY)*
 }
 EvaluatedStatement = {
     "$(" ~ EvaluatedStatementContent ~ ")"
+}
+
+RuleRecipeLine = _{
+    EvaluatableContent
 }
 
 LiteralDollar = { "$$" }
